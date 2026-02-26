@@ -1,0 +1,437 @@
+{
+  "name": "GithubAutomation",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "e6db84b5-89a6-4e0e-8327-0c07c41980e2",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "repository",
+        "owner": {
+          "__rl": true,
+          "value": "Queen-esther01",
+          "mode": "list",
+          "cachedResultName": "Queen-esther01",
+          "cachedResultUrl": "https://github.com/Queen-esther01"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "n8n-automation",
+          "mode": "list",
+          "cachedResultName": "n8n-automation",
+          "cachedResultUrl": "https://github.com/Queen-esther01/n8n-automation"
+        },
+        "limit": 1,
+        "getRepositoryIssuesFilters": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        128,
+        0
+      ],
+      "id": "a1fbbdce-24f5-4feb-9070-ff4611148d5e",
+      "name": "Get issues of a repository",
+      "webhookId": "e89af9b4-f6ec-4830-ac94-1801cddf3344",
+      "alwaysOutputData": false,
+      "credentials": {
+        "githubApi": {
+          "id": "KtUQrcb8eoeBOz3X",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        592,
+        240
+      ],
+      "id": "b46ae41b-e97c-4259-8624-be51e3f8355e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "iBOl9JMkXO0xbZhh",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cc45e05a-35e5-43f0-9413-67f4d59f84ac",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "ba2a3208-ec87-41af-b424-d18cdf4693f3",
+              "name": "body",
+              "value": "={{ $json.body }}",
+              "type": "string"
+            },
+            {
+              "id": "3c38fdab-859c-499a-8038-5c7c153b3150",
+              "name": "comments",
+              "value": "={{ $json.comments }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        0
+      ],
+      "id": "8d62860e-5c98-42ea-bbee-4a532ca0b28d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "inputText": "=Title: {{ $json.title }} Body: {{ $json.body }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Critical",
+              "description": "System is down, unusable, or causes major data loss (e.g., app crashes on launch, data corruption)"
+            },
+            {
+              "category": "High",
+              "description": "Major functionality is severely broken or unavailable, but the system is still running (e.g., checkout process fails, critical feature inoperable)."
+            },
+            {
+              "category": "Medium",
+              "description": "Non-core features are not working correctly, but a workaround exists (e.g., a specific filter not working)."
+            },
+            {
+              "category": "Minor",
+              "description": "Minor issues, such as UI/cosmetic flaws, typos, or alignment errors"
+            },
+            {
+              "category": "Miscellaneous",
+              "description": "Minor, non-functional, or purely visual bugs."
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "Please classify the text provided by the user into one of the following categories: {categories}, and use the provided formatting instructions below. Don't explain, and only output the json."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        592,
+        -48
+      ],
+      "id": "47a26b28-d51a-4fe6-905a-a9a228f5c2bc",
+      "name": "Text Classifier",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "options": {
+          "summarizationMethodAndPrompts": {
+            "values": {}
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "typeVersion": 2.1,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "d6288103-88bb-4d63-b7ee-192f40af3212",
+      "name": "Summarization Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1024,
+        240
+      ],
+      "id": "22de355f-6d0a-426a-bd19-6bc2be330e2c",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "iBOl9JMkXO0xbZhh",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "createComment",
+        "owner": {
+          "__rl": true,
+          "value": "Queen-esther01",
+          "mode": "list",
+          "cachedResultName": "Queen-esther01",
+          "cachedResultUrl": "https://github.com/Queen-esther01"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "n8n-automation",
+          "mode": "list",
+          "cachedResultName": "n8n-automation",
+          "cachedResultUrl": "https://github.com/Queen-esther01/n8n-automation"
+        },
+        "issueNumber": 1,
+        "body": "This is an automated comment."
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        1376,
+        0
+      ],
+      "id": "fb76ebd0-b600-43d3-a9e8-3f92cc8f625f",
+      "name": "Create a comment on an issue",
+      "webhookId": "4a9ed335-8cb7-4dfd-9337-b9f93a995e95",
+      "credentials": {
+        "githubApi": {
+          "id": "KtUQrcb8eoeBOz3X",
+          "name": "GitHub account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Get issues of a repository": [
+      {
+        "json": {
+          "url": "https://api.github.com/repos/Queen-esther01/n8n-automation/issues/1",
+          "repository_url": "https://api.github.com/repos/Queen-esther01/n8n-automation",
+          "labels_url": "https://api.github.com/repos/Queen-esther01/n8n-automation/issues/1/labels{/name}",
+          "comments_url": "https://api.github.com/repos/Queen-esther01/n8n-automation/issues/1/comments",
+          "events_url": "https://api.github.com/repos/Queen-esther01/n8n-automation/issues/1/events",
+          "html_url": "https://github.com/Queen-esther01/n8n-automation/issues/1",
+          "id": 3997747353,
+          "node_id": "I_kwDORZ1H287uSMiZ",
+          "number": 1,
+          "title": "A test issue",
+          "user": {
+            "login": "Queen-esther01",
+            "id": 35095984,
+            "node_id": "MDQ6VXNlcjM1MDk1OTg0",
+            "avatar_url": "https://avatars.githubusercontent.com/u/35095984?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/Queen-esther01",
+            "html_url": "https://github.com/Queen-esther01",
+            "followers_url": "https://api.github.com/users/Queen-esther01/followers",
+            "following_url": "https://api.github.com/users/Queen-esther01/following{/other_user}",
+            "gists_url": "https://api.github.com/users/Queen-esther01/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/Queen-esther01/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/Queen-esther01/subscriptions",
+            "organizations_url": "https://api.github.com/users/Queen-esther01/orgs",
+            "repos_url": "https://api.github.com/users/Queen-esther01/repos",
+            "events_url": "https://api.github.com/users/Queen-esther01/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/Queen-esther01/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "labels": [],
+          "state": "open",
+          "locked": false,
+          "assignees": [],
+          "milestone": null,
+          "comments": 0,
+          "created_at": "2026-02-26T21:04:35Z",
+          "updated_at": "2026-02-26T21:04:35Z",
+          "closed_at": null,
+          "assignee": null,
+          "author_association": "OWNER",
+          "active_lock_reason": null,
+          "sub_issues_summary": {
+            "total": 0,
+            "completed": 0,
+            "percent_completed": 0
+          },
+          "issue_dependencies_summary": {
+            "blocked_by": 0,
+            "total_blocked_by": 0,
+            "blocking": 0,
+            "total_blocking": 0
+          },
+          "body": "This repo is empty, please do something about it.",
+          "closed_by": null,
+          "reactions": {
+            "url": "https://api.github.com/repos/Queen-esther01/n8n-automation/issues/1/reactions",
+            "total_count": 0,
+            "+1": 0,
+            "-1": 0,
+            "laugh": 0,
+            "hooray": 0,
+            "confused": 0,
+            "heart": 0,
+            "rocket": 0,
+            "eyes": 0
+          },
+          "timeline_url": "https://api.github.com/repos/Queen-esther01/n8n-automation/issues/1/timeline",
+          "performed_via_github_app": null,
+          "state_reason": null,
+          "pinned_comment": null
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get issues of a repository",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get issues of a repository": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Summarization Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Summarization Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Summarization Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Summarization Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Summarization Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarization Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarization Chain": {
+      "main": [
+        [
+          {
+            "node": "Create a comment on an issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "05e68d8a-231c-4c27-94fa-76f19acf4a9a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b69f2a96ebdf31c67d6c394698c12eed9c701cfc76349cfc28245d3d6ae0f7bf"
+  },
+  "id": "tlGSLsVc8u9l3BxO",
+  "tags": []
+}
